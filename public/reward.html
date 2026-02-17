@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sua Banca - Finalizando</title>
+    <link rel="stylesheet" href="style.css?v=5">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <style>
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100dvh;
+            padding: 24px 20px;
+            animation: fadeIn 0.5s ease;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* Profile */
+        .profile-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-pic {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid var(--green);
+            object-fit: cover;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+        }
+
+        .profile-pic-wrap {
+            position: relative;
+            display: inline-block;
+        }
+
+        .verified-badge {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            background: var(--green);
+            color: #000;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            font-weight: 800;
+            border: 2px solid var(--bg-primary);
+        }
+
+        .profile-name {
+            font-size: 1.1em;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        .profile-location {
+            color: var(--green);
+            font-size: 0.8em;
+            margin-top: 2px;
+        }
+
+        /* Checklist */
+        .check-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin: 6px 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.88em;
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.4s ease;
+        }
+
+        .check-item.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .check-icon {
+            color: var(--green);
+            font-size: 1em;
+            flex-shrink: 0;
+        }
+
+        /* Timer */
+        .timer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid rgba(255, 68, 68, 0.3);
+            color: var(--danger);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.85em;
+            font-weight: 700;
+            margin: 14px 0;
+        }
+
+        /* Info cards */
+        .info-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 14px 16px;
+            border-radius: 12px;
+            margin: 6px 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+            font-size: 0.85em;
+        }
+
+        .info-card .emoji {
+            font-size: 1.4em;
+            flex-shrink: 0;
+        }
+
+        /* Social feed */
+        .feed-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-align: left;
+            font-size: 0.82em;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feed-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65em;
+            flex-shrink: 0;
+            font-weight: 700;
+        }
+
+        /* Conversion box */
+        .conversion-box {
+            background: linear-gradient(135deg, rgba(0, 200, 83, 0.08), rgba(0, 0, 0, 0.3));
+            border: 1px solid rgba(0, 200, 83, 0.3);
+            padding: 20px;
+            border-radius: 16px;
+            margin: 16px 0;
+            width: 100%;
+        }
+
+        .conversion-box .value {
+            font-size: 2em;
+            font-weight: 800;
+            color: var(--green);
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.25);
+        }
+
+        .conversion-box .status {
+            color: var(--text-muted);
+            font-size: 0.8em;
+            margin-top: 4px;
+        }
+
+        .conversion-box .status .dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--gold);
+            animation: blink 1.5s infinite;
+            margin-right: 4px;
+        }
+
+        /* Exit modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-box {
+            background: var(--bg-secondary);
+            padding: 28px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 68, 68, 0.3);
+            max-width: 360px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .modal-box h2 {
+            color: var(--danger);
+            font-size: 1.3em;
+            margin: 10px 0 8px;
+        }
+
+        .modal-box p {
+            color: var(--text-muted);
+            font-size: 0.9em;
+            margin-bottom: 16px;
+        }
+
+        .btn-danger {
+            background: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 12px;
+            border-radius: 12px;
+            width: 100%;
+            margin-top: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+
+        .lock-text {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: var(--text-dim);
+            font-size: 0.75em;
+            margin-top: 14px;
+        }
+
+        /* Scrollable screens */
+        .screen.scroll {
+            justify-content: flex-start;
+            overflow-y: auto;
+            padding-top: 40px;
+        }
+
+        .screen.scroll::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" style="padding:0; max-width:440px;">
+
+        <!-- SCREEN 6: VERIFICATION CHECKLIST -->
+        <div id="screen-6" class="screen active">
+            <div class="profile-card">
+                <div class="profile-pic-wrap">
+                    <img id="user-pic" class="profile-pic"
+                        src="https://ui-avatars.com/api/?name=User&background=random">
+                    <div class="verified-badge">✓</div>
+                </div>
+                <span class="profile-name" id="user-name">Usuário</span>
+                <span class="profile-location" id="user-location">📍 Localizando...</span>
+            </div>
+
+            <div class="header">
+                <h1>✅ Verificado!</h1>
+                <p>Finalizando liberação da sua banca...</p>
+            </div>
+
+            <div style="width:100%">
+                <div class="check-item" id="chk-1"><span class="check-icon">✔️</span> Identidade Confirmada</div>
+                <div class="check-item" id="chk-2"><span class="check-icon">✔️</span> Sistema Validado</div>
+                <div class="check-item" id="chk-3"><span class="check-icon">✔️</span> Banca Reservada</div>
+            </div>
+        </div>
+
+        <!-- SCREEN 7: RESERVED -->
+        <div id="screen-7" class="screen">
+            <div style="font-size:3.5em;">💰</div>
+            <div class="header">
+                <h1 id="reward-reserved-text">Banca de R$30,00<br>Reservada!</h1>
+            </div>
+            <div class="timer-badge">
+                ⏳ Reserva expira em <span id="timer">10:00</span>
+            </div>
+            <p style="color:var(--text-muted);font-size:0.88em;">Para evitar a perda, conclua a ativação agora.</p>
+            <button class="action-btn pulse" onclick="nextScreen(8)">Ativar Minha Banca</button>
+        </div>
+
+        <!-- SCREEN 8: HOW IT WORKS -->
+        <div id="screen-8" class="screen">
+            <div class="header">
+                <h1>ℹ️ Como Funciona</h1>
+            </div>
+            <div style="width:100%">
+                <div class="info-card"><span class="emoji">💸</span><span id="howit-value">Você recebe R$30 para
+                        usar</span></div>
+                <div class="info-card"><span class="emoji">🎯</span><span>Lucros podem ser sacados</span></div>
+                <div class="info-card"><span class="emoji">🔒</span><span>Sistema anti-fraude ativo</span></div>
+                <div class="info-card"><span class="emoji">🆓</span><span>Sem custo para ativar</span></div>
+            </div>
+            <p class="small-text" style="margin-top:12px;">*Disponível apenas para contas novas</p>
+            <button class="action-btn" onclick="nextScreen(9)">Continuar</button>
+        </div>
+
+        <!-- SCREEN 9: SOCIAL PROOF -->
+        <div id="screen-9" class="screen scroll">
+            <span class="badge" style="margin-bottom:12px;">🟢 AO VIVO</span>
+            <div class="header">
+                <h1>Pessoas Ativando Agora</h1>
+                <p>Você está entre os últimos disponíveis hoje</p>
+            </div>
+            <div id="social-feed" style="width:100%;margin:12px 0;"></div>
+            <button class="action-btn pulse" onclick="nextScreen(10)">Quero Ativar Também</button>
+        </div>
+
+        <!-- SCREEN 10: FINAL CONVERSION -->
+        <div id="screen-10" class="screen">
+            <div style="font-size:3.5em;animation: badgePulse 2s infinite;">🎁</div>
+            <div class="header">
+                <h1>Última Etapa!</h1>
+                <p>Crie sua conta no parceiro oficial para liberar</p>
+            </div>
+            <div class="conversion-box">
+                <div class="value" id="final-value">R$ 30,00</div>
+                <div class="status"><span class="dot"></span> Aguardando cadastro...</div>
+            </div>
+            <a href="#" class="action-btn pulse" id="final-link"
+                style="text-decoration:none;display:block;text-align:center;">
+                Criar Conta e Receber Banca
+            </a>
+            <div class="lock-text">🔒 Ambiente Seguro</div>
+        </div>
+    </div>
+
+    <!-- EXIT MODAL -->
+    <div id="exit-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div style="font-size:2.5em;">⛔</div>
+            <h2>ATENÇÃO!</h2>
+            <p>Sua banca de R$30 será liberada para outra pessoa se você sair.</p>
+            <button class="action-btn" onclick="closeModal()">Continuar Ativação</button>
+            <button class="btn-danger" onclick="giveUp()">❌ Perder Banca</button>
+        </div>
+    </div>
+
+    <!-- Audio -->
+    <audio id="sound-success" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+    <audio id="sound-pop" src="https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3"></audio>
+
+    <script>
+        // ===== DYNAMIC CONFIG =====
+        fetch('/api/config')
+            .then(r => r.json())
+            .then(cfg => {
+                if (cfg.rewardValue) {
+                    const v = cfg.rewardValue;
+                    const el1 = document.getElementById('reward-reserved-text');
+                    const el2 = document.getElementById('howit-value');
+                    const el3 = document.getElementById('final-value');
+                    if (el1) el1.innerHTML = `Banca de R$${v}<br>Reservada!`;
+                    if (el2) el2.textContent = `Você recebe R$${v} para usar`;
+                    if (el3) el3.textContent = `R$ ${v}`;
+                }
+                if (cfg.conversionLink) {
+                    const link = document.getElementById('final-link');
+                    if (link) link.href = cfg.conversionLink;
+                }
+                if (cfg.facebookPixelId) { initPixel(cfg.facebookPixelId); }
+            })
+            .catch(() => { });
+
+        // ===== FACEBOOK PIXEL =====
+        function initPixel(id) {
+            !function (f, b, e, v, n, t, s) {
+                if (f.fbq) return; n = f.fbq = function () {
+                    n.callMethod ?
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+                }; if (!f._fbq) f._fbq = n;
+                n.push = n; n.loaded = !0; n.version = '2.0'; n.queue = []; t = b.createElement(e); t.async = !0;
+                t.src = v; s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s)
+            }(window,
+                document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', id);
+            fbq('track', 'PageView');
+        }
+
+        // ===== LOAD USER DATA =====
+        document.addEventListener('DOMContentLoaded', () => {
+            const userName = localStorage.getItem('userName');
+            const userPic = localStorage.getItem('userPic');
+
+            if (userName) document.getElementById('user-name').innerText = userName;
+            if (userPic && userPic.startsWith('http')) {
+                document.getElementById('user-pic').src = userPic;
+            }
+
+            fetch('https://ipapi.co/json/')
+                .then(res => res.json())
+                .then(data => {
+                    const city = data.city || 'Sua Cidade';
+                    const region = data.region_code || 'BR';
+                    document.getElementById('user-location').textContent = `📍 ${city} - ${region}`;
+                })
+                .catch(() => {
+                    document.getElementById('user-location').textContent = '📍 Brasil';
+                });
+        });
+
+        // ===== NAVIGATION =====
+        function nextScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-' + id).classList.add('active');
+
+            if (id === 7) {
+                startTimer(); fireConfetti();
+                if (typeof fbq !== 'undefined') fbq('track', 'Lead');
+            }
+            if (id === 9) startSocialFeed();
+        }
+
+        // ===== CONFETTI =====
+        function fireConfetti() {
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            setTimeout(() => {
+                confetti({ particleCount: 50, angle: 60, spread: 55, origin: { x: 0 } });
+                confetti({ particleCount: 50, angle: 120, spread: 55, origin: { x: 1 } });
+            }, 300);
+            setTimeout(() => {
+                confetti({ particleCount: 80, spread: 100, origin: { y: 0.7 } });
+            }, 700);
+        }
+
+        // ===== SCREEN 6 ANIMATION =====
+        setTimeout(() => {
+            const items = document.querySelectorAll('#screen-6 .check-item');
+            items[0].classList.add('show');
+            setTimeout(() => { items[1].classList.add('show'); }, 800);
+            setTimeout(() => { items[2].classList.add('show'); }, 1600);
+            setTimeout(() => { nextScreen(7); }, 3500);
+        }, 500);
+
+        // ===== TIMER =====
+        function startTimer() {
+            let time = 600;
+            const el = document.getElementById('timer');
+            setInterval(() => {
+                if (time <= 0) return;
+                time--;
+                const m = Math.floor(time / 60).toString().padStart(2, '0');
+                const s = (time % 60).toString().padStart(2, '0');
+                el.innerText = `${m}:${s}`;
+            }, 1000);
+        }
+
+        // ===== SOCIAL FEED =====
+        const names = ['João', 'Marcos', 'Ana', 'Pedro', 'Lucas', 'Mariana', 'Felipe', 'Bruna', 'Carlos', 'Letícia', 'Rafael', 'Julia'];
+        const actions = ['R$30 liberado ✅', 'Saque solicitado 💸', 'Ativou banca agora 🔥', 'Ganhou R$50 🎉', 'Cadastro aprovado ✓'];
+        const colors = ['#ff6b6b', '#00b894', '#6c5ce7', '#fdcb6e', '#e17055', '#00cec9', '#a29bfe'];
+
+        function startSocialFeed() {
+            const feed = document.getElementById('social-feed');
+            function addPost() {
+                const name = names[Math.floor(Math.random() * names.length)];
+                const action = actions[Math.floor(Math.random() * actions.length)];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const div = document.createElement('div');
+                div.className = 'feed-item';
+                div.innerHTML = `<div class="feed-avatar" style="background:${color}">${name[0]}</div><div><strong>${name}</strong> — ${action}</div>`;
+                feed.insertBefore(div, feed.firstChild);
+                if (feed.children.length > 5) feed.removeChild(feed.lastChild);
+            }
+            addPost(); addPost(); addPost();
+            setInterval(addPost, 2000);
+        }
+
+        // ===== EXIT INTENT =====
+        document.addEventListener('mouseleave', (e) => {
+            if (e.clientY < 0) document.getElementById('exit-modal').style.display = 'flex';
+        });
+
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            document.getElementById('exit-modal').style.display = 'flex';
+            history.pushState(null, null, location.href);
+        };
+
+        function closeModal() { document.getElementById('exit-modal').style.display = 'none'; }
+        function giveUp() { alert('Banca cancelada.'); window.location.href = 'https://google.com'; }
+    </script>
+</body>
+
+</html>

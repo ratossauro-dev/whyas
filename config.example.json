@@ -1,0 +1,19 @@
+{
+    "rewardValue": "30,00",
+    "adminPassword": "admin123",
+    "jwtSecret": "",
+    "webhookUrl": "",
+    "welcomeMessage": "",
+    "broadcastMessage": "",
+    "broadcastLimit": 50,
+    "rateLimitWindowMs": 3600000,
+    "rateLimitMaxAttempts": 3,
+    "blacklist": [],
+    "scheduledTime": "",
+    "telegramBotToken": "",
+    "telegramChatId": "",
+    "maintenanceMode": false,
+    "maxSessionsPerIp": 2,
+    "conversionLink": "https://exemplo.com",
+    "facebookPixelId": ""
+}

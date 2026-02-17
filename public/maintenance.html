@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Em Manutenção</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0d121b;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+            max-width: 420px;
+            animation: fadeIn 0.8s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .icon {
+            font-size: 4em;
+            margin-bottom: 16px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        h1 {
+            font-size: 1.8em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00ff88, #00b8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
+        p {
+            color: #8892a4;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 0.85em;
+            color: #ffaa00;
+        }
+        .status-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #ffaa00;
+            animation: blink 1.5s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .bg-glow {
+            position: fixed;
+            width: 300px; height: 300px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.08;
+            pointer-events: none;
+        }
+        .glow-1 { background: #00ff88; top: -100px; left: -100px; }
+        .glow-2 { background: #00b8ff; bottom: -100px; right: -100px; }
+    </style>
+</head>
+<body>
+    <div class="bg-glow glow-1"></div>
+    <div class="bg-glow glow-2"></div>
+    <div class="container">
+        <div class="icon">🔧</div>
+        <h1>Em Manutenção</h1>
+        <p>Estamos realizando melhorias no sistema.<br>Voltamos em breve com tudo funcionando!</p>
+        <div class="status-bar">
+            <div class="status-dot"></div>
+            <span>Equipe trabalhando agora...</span>
+        </div>
+    </div>
+</body>
+</html>

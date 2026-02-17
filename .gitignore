@@ -1,0 +1,9 @@
+node_modules/
+tokens/
+backups/
+bot.db
+bot.db-shm
+bot.db-wal
+stats.json
+config.json
+*.log
