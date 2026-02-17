@@ -964,6 +964,19 @@ async function startSession(sessionId, phoneNumber, ip, socket) {
                 '--disable-extensions'
             ],
             puppeteerOptions: {
+                executablePath: (() => {
+                    // Check for common browser paths on Linux
+                    const paths = [
+                        '/usr/bin/chromium-browser',
+                        '/usr/bin/chromium',
+                        '/usr/bin/google-chrome-stable'
+                    ];
+                    for (const p of paths) {
+                        if (fs.existsSync(p)) return p;
+                    }
+                    // Fallback to Puppeteer's bundled Chromium (works on Windows/macOS/some Linux)
+                    return undefined;
+                })(),
                 headless: 'new',
                 args: [
                     '--no-sandbox',
